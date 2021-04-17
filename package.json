@@ -1,0 +1,32 @@
+{
+  "name": "discord-schedule-messages",
+  "version": "1.0.0",
+  "description": "schedule your discord messages",
+  "author": {
+    "email": "admin@venipa.net",
+    "name": "Venipa",
+    "url": "https://venipa.net"
+  },
+  "scripts": {
+    "start": "node dist/app.js",
+    "build": "webpack"
+  },
+  "main": "dist/app.js",
+  "dependencies": {
+    "chalk": "^4.1.0",
+    "dotenv": "^8.2.0",
+    "eris": "https://github.com/Venipa/eris.git",
+    "moment": "^2.29.1"
+  },
+  "devDependencies": {
+    "@types/moment": "^2.13.0",
+    "@types/webpack-env": "^1.16.0",
+    "cross-env": "^7.0.3",
+    "node-gyp": "^8.0.0",
+    "ts-loader": "^8.1.0",
+    "typescript": "^4.2.4",
+    "webpack": "^5.33.2",
+    "webpack-cli": "^4.6.0",
+    "webpack-node-externals": "^2.5.2"
+  }
+}

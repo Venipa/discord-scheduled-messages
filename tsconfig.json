@@ -1,0 +1,40 @@
+{
+  "compilerOptions": {
+    "target": "es6", /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */
+    "module": "commonjs",
+    /* Strict Type-Checking Options */
+    "strict": false, /* Enable all strict type-checking options. */
+    /* Module Resolution Options */
+    "moduleResolution": "node", /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */
+    "esModuleInterop": true,
+    "strictNullChecks": false,
+    "allowSyntheticDefaultImports": true,
+    "noImplicitAny": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "skipLibCheck": true, /* Skip type checking of declaration files. */
+    "forceConsistentCasingInFileNames": true,
+    "types": [
+      "webpack-env"
+    ],
+  },
+  "include": [
+    "src/**/*.ts"
+  ],
+  "paths": {
+    "@/*": [
+      "src/*"
+    ],
+    "~/*": [
+      "src/*"
+    ]
+  },
+  "lib": [
+    "esnext"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
