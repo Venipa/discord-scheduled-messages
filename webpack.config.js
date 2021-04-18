@@ -1,10 +1,21 @@
 const path = require("path");
+const glob = require("glob");
 const nodeExternals = require("webpack-node-externals");
 module.exports = {
   mode: process.env.NODE_ENV === "production" ? "production" : "development",
-  entry: "./src/app.ts",
+  entry: {
+    app: "./src/app.ts",
+    ...glob
+      .sync("./src/commands/*.ts")
+      .filter((file) => file.match(/(\w+)\.ts$/))
+      .reduce((acc, file) => {
+        console.log(file);
+        acc[file.match(/(\w+)\.ts/)[1]] = file;
+        return acc;
+      }, {}),
+  },
   target: "node",
-  devtool: 'inline-source-map',
+  devtool: "inline-source-map",
   module: {
     rules: [
       {
@@ -23,7 +34,7 @@ module.exports = {
   },
   externals: [nodeExternals()],
   output: {
-    filename: "app.js",
+    filename: "[name].js",
     path: path.resolve(__dirname, "dist"),
   },
   plugins: [],

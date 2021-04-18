@@ -8,7 +8,9 @@ type CommandMetadata = {
   requirements?: Array<keyof Constants["Permissions"]>;
   delete?: boolean;
 };
-export type CreateCommandModule = (client: Client) => { new(): Command };
+export type CreateCommandModule = {
+  default: (client: Client) => { new(): Command }
+};
 export interface ICommand {
   metadata: CommandMetadata;
   readonly client: Client;

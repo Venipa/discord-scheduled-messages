@@ -16,6 +16,7 @@
     "chalk": "^4.1.0",
     "dotenv": "^8.2.0",
     "eris": "https://github.com/Venipa/eris.git",
+    "glob": "^7.1.6",
     "moment": "^2.29.1"
   },
   "devDependencies": {

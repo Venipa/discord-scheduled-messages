@@ -52,6 +52,7 @@ export default function (client: Client) {
         this.onSend.bind(this, name, scheduleStore[name]),
         moment.duration(scheduleStore[name].interval).asMilliseconds()
       );
+      this.saveToDrive();
     }
     private addSchedule(message: Message, ...[name, interval, ...m]: string[]) {
       if (scheduleStore[name]) this.removeSchedule(message, ...[name]);

@@ -28,10 +28,12 @@ export class CommandHandler {
 
   public async loadCommands() {
     const commandFiles = require.context("../commands", true, /\.ts$/);
-    const commands = (await Promise.all(commandFiles
+    const commands = commandFiles
       .keys()
-      .map(x => import(x))))
-      .map((x: CreateCommandModule) => {
+      .map(commandFiles)
+      .map((x: CreateCommandModule) => x?.default)
+      .filter((x) => !!x)
+      .map((x) => {
         try {
           return x(this.client);
         } catch {
