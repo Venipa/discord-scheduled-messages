@@ -93,7 +93,7 @@ export default function (client: Client) {
           ? `${channel.name}@${channel.guild.name}`
           : entity.channel;
         return (
-          `${name}\t\t:: ${channelName} - ` +
+          `${name.padStart(16, " ")} :: ${channelName} - ` +
           (entity.lastRun
             ? `${durationString(
                 duration
