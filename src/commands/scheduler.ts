@@ -43,7 +43,7 @@ export default function (client: Client) {
       else if (type.toLowerCase() === "now") this.nowSchedule(message, ...args);
     }
     private onSend(name: string, schedule: Schedule) {
-      new Logger(`scheduler:${name}`).debug(schedule);
+      new Logger(`scheduler:${name}`).info(`Sending - "${schedule.message}"`);
       (this.client.getChannel(
         schedule.channel
       ) as TextChannel)?.createMessage?.(schedule.message);
