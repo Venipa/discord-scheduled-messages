@@ -48,6 +48,10 @@ export default function (client: Client) {
         schedule.channel
       ) as TextChannel)?.createMessage?.(schedule.message);
       scheduleStore[name].lastRun = new Date().toISOString();
+      scheduleStore[name].handle = setTimeout(
+        this.onSend.bind(this, name, scheduleStore[name]),
+        moment.duration(scheduleStore[name].interval).asMilliseconds()
+      );
     }
     private addSchedule(message: Message, ...[name, interval, ...m]: string[]) {
       if (scheduleStore[name]) this.removeSchedule(message, ...[name]);
@@ -56,32 +60,39 @@ export default function (client: Client) {
         channel: message.channel.id,
         message: m.join(" "),
       };
-      scheduleStore[name].handle = setInterval(
+      const nextInterval = moment
+        .duration(scheduleStore[name].interval)
+        .asMilliseconds();
+      if (nextInterval < 5000) {
+        delete scheduleStore[name];
+        return;
+      }
+      scheduleStore[name].handle = setTimeout(
         this.onSend.bind(this, name, scheduleStore[name]),
-        moment.duration(scheduleStore[name].interval).asMilliseconds()
+        nextInterval
       );
       this.saveToDrive();
     }
     private removeSchedule(message: Message, ...[name]: string[]) {
       if (!scheduleStore[name]) return;
-      clearInterval(scheduleStore[name].handle);
+      clearTimeout(scheduleStore[name].handle);
       delete scheduleStore[name];
       this.saveToDrive();
     }
     private nowSchedule(message: Message, ...[name]: string[]) {
       if (!scheduleStore[name]) return;
-      if (scheduleStore[name].handle) clearInterval(scheduleStore[name].handle);
-      scheduleStore[name].handle = setInterval(
-        this.onSend.bind(this, name, scheduleStore[name]),
-        moment.duration(scheduleStore[name].interval).asMilliseconds()
-      );
+      if (scheduleStore[name].handle) clearTimeout(scheduleStore[name].handle);
       this.onSend(name, scheduleStore[name]);
     }
     private listSchedule(message: Message) {
       const m = Object.entries(scheduleStore).map(([name, entity]) => {
         const duration = moment.duration(entity.interval);
+        const channel = this.client.getChannel(entity.channel) as TextChannel;
+        const channelName = channel?.name
+          ? `${channel.name}@${channel.guild.name}`
+          : entity.channel;
         return (
-          `${name}\t\t:: ${entity.channel} - ` +
+          `${name}\t\t:: ${channelName} - ` +
           (entity.lastRun
             ? `${durationString(
                 duration
@@ -95,7 +106,7 @@ export default function (client: Client) {
           `every ${durationString(duration)}, ${entity.message}`
         );
       });
-      message.channel.createMessage(`\`\`\`asciidoc\n${m}\`\`\``);
+      message.channel.createMessage(`\`\`\`asciidoc\n${m.join("\n")}\`\`\``);
     }
     private async saveToDrive() {
       const data = JSON.stringify(
@@ -105,6 +116,7 @@ export default function (client: Client) {
               channel: entity.channel,
               interval: entity.interval,
               message: entity.message,
+              lastRun: entity.lastRun,
               name,
             };
           })
@@ -124,9 +136,20 @@ export default function (client: Client) {
           scheduleStore[name] = <Schedule>{
             ...entity,
           };
-          scheduleStore[name].handle = setInterval(
+          const ms = moment.duration(entity.interval).asMilliseconds();
+          const lastDistance = entity.lastRun
+            ? Date.now() - Date.parse(entity.lastRun)
+            : null;
+          const nextDistance =
+            lastDistance && lastDistance >= 0
+              ? lastDistance > ms
+                ? ms
+                : ms - lastDistance
+              : ms;
+
+          scheduleStore[name].handle = setTimeout(
             this.onSend.bind(this, name, scheduleStore[name]),
-            moment.duration(entity.interval).asMilliseconds()
+            nextDistance < 5000 ? 5000 : nextDistance // default to 5000ms if it matches spam interval
           );
         });
       } catch {}
