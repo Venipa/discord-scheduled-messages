@@ -5,7 +5,7 @@ import fs from "fs";
 import path from "path";
 import Logger from "../utils/Logger";
 const durationString = (duration: Duration) =>
-  `${duration.asHours().toFixed(0)}h:${duration
+  `${(duration.asMinutes() / 60).toFixed(0)}h:${duration
     .minutes()
     .toFixed(0)}m:${duration.seconds().toFixed(0)}s`;
 export interface Schedule {
