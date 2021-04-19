@@ -60,7 +60,7 @@ export default function (client: Client) {
         interval: `PT${interval.toUpperCase()}`,
         channel: message.channel.id,
         message: m.join(" "),
-        lastRun: new Date().toISOString() // set initial start
+        lastRun: new Date().toISOString(), // set initial start
       };
       const nextInterval = moment
         .duration(scheduleStore[name].interval)
@@ -98,7 +98,13 @@ export default function (client: Client) {
           .subtract(Date.now() - Date.parse(entity.lastRun), "milliseconds");
         return (
           `${name.padStart(16, " ")} :: ${channelName} - ` +
-          (entity.lastRun ? `${durationString(lastRun.asMilliseconds() > 0 ? lastRun : moment.duration(0, 'millisecond'))} / ` : "") +
+          (entity.lastRun
+            ? `${durationString(
+                lastRun.asMilliseconds() > 0
+                  ? lastRun
+                  : moment.duration(0, "millisecond")
+              )} / `
+            : "") +
           `every ${durationString(duration)}, ${entity.message}`
         );
       });
@@ -128,7 +134,7 @@ export default function (client: Client) {
               .readFileSync(path.resolve(__dirname, "schedules.json"))
               .toString()
           )
-        ).forEach(([name, entity]: [string, Schedule]) => {
+        ).forEach(([name, entity]: [string, Schedule], i: number) => {
           scheduleStore[name] = <Schedule>{
             ...entity,
           };
@@ -136,11 +142,12 @@ export default function (client: Client) {
           const lastDistance = entity.lastRun
             ? Date.now() - Date.parse(entity.lastRun)
             : null;
-          const nextDistance = lastDistance && lastDistance > ms ? 5000 : ms; // schedule for soonest message, 5000ms min to prevent spam
+          const nextDistance =
+            lastDistance && lastDistance > ms ? (i + 1) * 5000 : ms; // schedule for soonest message, 5000ms min to prevent spam
 
           scheduleStore[name].handle = setTimeout(
             this.onSend.bind(this, name, scheduleStore[name]),
-            nextDistance < 5000 ? 5000 : nextDistance
+            nextDistance < 5000 ? (i + 1) * 5000 : nextDistance
           );
         });
       } catch {}
