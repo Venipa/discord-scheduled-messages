@@ -92,18 +92,12 @@ export default function (client: Client) {
         const channelName = channel?.name
           ? `${channel.name}@${channel.guild.name}`
           : entity.channel;
+        const lastRun = duration
+          .clone()
+          .subtract(Date.now() - Date.parse(entity.lastRun), "milliseconds");
         return (
           `${name.padStart(16, " ")} :: ${channelName} - ` +
-          (entity.lastRun
-            ? `${durationString(
-                duration
-                  .clone()
-                  .subtract(
-                    Date.now() - Date.parse(entity.lastRun),
-                    "milliseconds"
-                  )
-              )} / `
-            : "") +
+          (entity.lastRun ? `${durationString(lastRun.asMilliseconds() > 0 ? lastRun : moment.duration(0, 'millisecond'))} / ` : "") +
           `every ${durationString(duration)}, ${entity.message}`
         );
       });
@@ -141,16 +135,11 @@ export default function (client: Client) {
           const lastDistance = entity.lastRun
             ? Date.now() - Date.parse(entity.lastRun)
             : null;
-          const nextDistance =
-            lastDistance && lastDistance >= 0
-              ? lastDistance > ms
-                ? ms
-                : ms - lastDistance
-              : ms;
+          const nextDistance = lastDistance && lastDistance > ms ? 5000 : ms; // schedule for soonest message, 5000ms min to prevent spam
 
           scheduleStore[name].handle = setTimeout(
             this.onSend.bind(this, name, scheduleStore[name]),
-            nextDistance < 5000 ? 5000 : nextDistance // default to 5000ms if it matches spam interval
+            nextDistance < 5000 ? 5000 : nextDistance
           );
         });
       } catch {}
