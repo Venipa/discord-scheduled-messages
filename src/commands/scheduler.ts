@@ -60,6 +60,7 @@ export default function (client: Client) {
         interval: `PT${interval.toUpperCase()}`,
         channel: message.channel.id,
         message: m.join(" "),
+        lastRun: new Date().toISOString() // set initial start
       };
       const nextInterval = moment
         .duration(scheduleStore[name].interval)
